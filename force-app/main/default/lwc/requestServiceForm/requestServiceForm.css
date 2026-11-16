@@ -1,0 +1,72 @@
+.request-service-form {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.form-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.form-subtitle {
+    color: #5c5c5c;
+    margin-bottom: 1.5rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 640px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.full-width-field {
+    margin-top: 1rem;
+}
+
+.file-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.file-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.file-error {
+    color: #c23934;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.form-error {
+    background: #fdece9;
+    color: #c23934;
+    border: 1px solid #c23934;
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.submit-button {
+    margin-top: 1.5rem;
+}
+
+.confirmation {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.case-number {
+    font-size: 1.125rem;
+    margin: 1rem 0 1.5rem;
+}

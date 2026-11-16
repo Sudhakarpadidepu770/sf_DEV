@@ -1,0 +1,8 @@
+trigger ContactTrigger on Contact (
+    after insert,
+    after update,
+    after delete,
+    after undelete
+) {
+    new ContactTriggerHandler().run();
+}

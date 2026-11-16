@@ -1,0 +1,127 @@
+<template>
+    <div class="request-service-form">
+        <template if:false={submitted}>
+            <h1 class="form-title">Request a Service</h1>
+            <p class="form-subtitle">Tell us about the problem and we'll get a technician scheduled.</p>
+
+            <template if:true={errorMessage}>
+                <div class="form-error" role="alert">{errorMessage}</div>
+            </template>
+
+            <div class="form-grid">
+                <lightning-input
+                    label="Your Name"
+                    required
+                    data-field="customerName"
+                    value={customerName}
+                    onchange={handleInputChange}>
+                </lightning-input>
+
+                <lightning-input
+                    label="Mobile Number"
+                    type="tel"
+                    data-field="mobile"
+                    value={mobile}
+                    onchange={handleInputChange}>
+                </lightning-input>
+
+                <lightning-input
+                    label="Email"
+                    type="email"
+                    data-field="email"
+                    value={email}
+                    onchange={handleInputChange}>
+                </lightning-input>
+
+                <lightning-combobox
+                    label="Service Type"
+                    required
+                    placeholder="Select a service type"
+                    data-field="serviceCategory"
+                    value={serviceCategory}
+                    options={serviceCategoryOptions}
+                    onchange={handleInputChange}>
+                </lightning-combobox>
+
+                <lightning-input
+                    label="Product / Appliance"
+                    placeholder='e.g. Samsung 55" Smart TV'
+                    data-field="product"
+                    value={product}
+                    onchange={handleInputChange}>
+                </lightning-input>
+
+                <lightning-input
+                    label="Preferred Date"
+                    type="date"
+                    data-field="preferredDate"
+                    value={preferredDate}
+                    onchange={handleInputChange}>
+                </lightning-input>
+
+                <lightning-combobox
+                    label="Preferred Time Window"
+                    placeholder="Select a time window"
+                    data-field="preferredTimeWindow"
+                    value={preferredTimeWindow}
+                    options={timeWindowOptions}
+                    onchange={handleInputChange}>
+                </lightning-combobox>
+
+                <lightning-combobox
+                    label="Priority"
+                    data-field="priority"
+                    value={priority}
+                    options={priorityOptions}
+                    onchange={handleInputChange}>
+                </lightning-combobox>
+            </div>
+
+            <lightning-textarea
+                label="Address"
+                data-field="address"
+                value={address}
+                onchange={handleInputChange}
+                class="full-width-field">
+            </lightning-textarea>
+
+            <lightning-textarea
+                label="Describe the Problem"
+                required
+                data-field="problemDescription"
+                value={problemDescription}
+                onchange={handleInputChange}
+                class="full-width-field">
+            </lightning-textarea>
+
+            <div class="full-width-field file-field">
+                <label class="file-label">Photo of the appliance (optional, JPG/PNG/PDF, max 5 MB)</label>
+                <input type="file" accept=".jpg,.jpeg,.png,.pdf" onchange={handleFileChange} />
+                <template if:true={fileError}>
+                    <p class="file-error">{fileError}</p>
+                </template>
+            </div>
+
+            <lightning-button
+                variant="brand"
+                label="Submit Request"
+                onclick={handleSubmit}
+                disabled={isSubmitting}
+                class="submit-button">
+            </lightning-button>
+        </template>
+
+        <template if:true={submitted}>
+            <div class="confirmation">
+                <h1 class="form-title">Request Received</h1>
+                <p>Thank you! Your service request has been received.</p>
+                <p class="case-number">Reference Number: <strong>{confirmationCaseNumber}</strong></p>
+                <lightning-button
+                    variant="neutral"
+                    label="Submit Another Request"
+                    onclick={handleSubmitAnother}>
+                </lightning-button>
+            </div>
+        </template>
+    </div>
+</template>
