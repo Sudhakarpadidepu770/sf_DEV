@@ -1,0 +1,189 @@
+<template>
+    <div class="c360-container">
+
+        <template if:true={showSearch}>
+            <template if:false={hasData}>
+                <div class="search-panel">
+                    <h1 class="page-title">Customer 360 View</h1>
+                    <p class="page-subtitle">Search for a customer to see their full service history in one place.</p>
+                    <div class="search-box">
+                        <lightning-input
+                            type="search"
+                            label="Search Customer"
+                            variant="label-hidden"
+                            placeholder="Search by customer name..."
+                            value={searchTerm}
+                            onchange={handleSearchInput}>
+                        </lightning-input>
+                        <template if:true={showResults}>
+                            <ul class="search-results">
+                                <template for:each={searchResults} for:item="result">
+                                    <li key={result.accountId} data-id={result.accountId} onclick={handleSelectCustomer} class="search-result-item">
+                                        <span class="result-name">{result.name}</span>
+                                        <span class="result-meta">{result.customerType} &middot; {result.billingCity}</span>
+                                    </li>
+                                </template>
+                                <template if:false={searchResults.length}>
+                                    <li class="search-result-empty">No matching customers.</li>
+                                </template>
+                            </ul>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </template>
+
+        <template if:true={isLoading}>
+            <div class="spinner-wrap">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:true={errorMessage}>
+            <div class="error-banner">{errorMessage}</div>
+        </template>
+
+        <template if:true={hasData}>
+            <div class="c360-header">
+                <div class="c360-header-main">
+                    <h1 class="customer-name">{data.accountName}</h1>
+                    <div class="customer-meta">
+                        <lightning-badge label={data.customerType} class="type-badge"></lightning-badge>
+                        <span class="meta-item">{data.billingCity}</span>
+                        <template if:true={data.phone}>
+                            <span class="meta-item">{data.phone}</span>
+                        </template>
+                    </div>
+                    <template if:true={data.primaryContactName}>
+                        <div class="contact-line">
+                            Primary Contact: <strong>{data.primaryContactName}</strong>
+                            <template if:true={data.primaryContactPhone}> &middot; {data.primaryContactPhone}</template>
+                            <template if:true={data.primaryContactEmail}> &middot; {data.primaryContactEmail}</template>
+                        </div>
+                    </template>
+                </div>
+                <template if:true={showSearch}>
+                    <lightning-button label="Change Customer" onclick={handleChangeCustomer} class="change-btn"></lightning-button>
+                </template>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-tile">
+                    <div class="stat-value">{data.totalAssets}</div>
+                    <div class="stat-label">Total Assets</div>
+                </div>
+                <div class="stat-tile">
+                    <div class="stat-value">{data.openCases}</div>
+                    <div class="stat-label">Open Cases</div>
+                </div>
+                <div class="stat-tile">
+                    <div class="stat-value">{data.completedServices}</div>
+                    <div class="stat-label">Completed Services</div>
+                </div>
+                <div class="stat-tile">
+                    <div class="stat-value">{data.upcomingAppointments}</div>
+                    <div class="stat-label">Upcoming Appointments</div>
+                </div>
+            </div>
+
+            <div class="tab-bar">
+                <div class={assetsTabClass} data-tab="assets" onclick={handleTabClick}>Assets ({data.totalAssets})</div>
+                <div class={casesTabClass} data-tab="cases" onclick={handleTabClick}>Cases ({data.cases.length})</div>
+                <div class={workOrdersTabClass} data-tab="workorders" onclick={handleTabClick}>Work Orders ({data.workOrders.length})</div>
+                <div class={appointmentsTabClass} data-tab="appointments" onclick={handleTabClick}>Appointments ({data.appointments.length})</div>
+            </div>
+
+            <template if:true={isAssetsTab}>
+                <div class="asset-grid">
+                    <template for:each={assetsWithBadge} for:item="asset">
+                        <div key={asset.assetId} class="asset-card">
+                            <div class="asset-card-header">
+                                <span class="asset-name">{asset.assetName}</span>
+                                <lightning-badge label={asset.warrantyLabel} class={asset.warrantyVariant}></lightning-badge>
+                            </div>
+                            <div class="asset-product">{asset.product}</div>
+                            <div class="asset-detail-row"><span class="detail-label">Status:</span> {asset.status}</div>
+                            <div class="asset-detail-row"><span class="detail-label">Serial:</span> {asset.serialNumber}</div>
+                            <div class="asset-detail-row"><span class="detail-label">Installed:</span> {asset.installDate}</div>
+                            <div class="asset-detail-row"><span class="detail-label">Services:</span> {asset.serviceCount}</div>
+                        </div>
+                    </template>
+                    <template if:false={data.totalAssets}>
+                        <p class="empty-state">No assets on file for this customer.</p>
+                    </template>
+                </div>
+            </template>
+
+            <template if:true={isCasesTab}>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Case #</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>Asset</th><th>Created</th></tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={casesWithBadge} for:item="c">
+                            <tr key={c.caseId}>
+                                <td>{c.caseNumber}</td>
+                                <td>{c.subject}</td>
+                                <td>{c.serviceCategory}</td>
+                                <td>{c.priority}</td>
+                                <td><lightning-badge label={c.status} class={c.statusVariant}></lightning-badge></td>
+                                <td>{c.assetName}</td>
+                                <td>{c.createdDate}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <template if:false={data.cases.length}>
+                    <p class="empty-state">No cases on file for this customer.</p>
+                </template>
+            </template>
+
+            <template if:true={isWorkOrdersTab}>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>WO #</th><th>Subject</th><th>Work Type</th><th>Priority</th><th>Status</th><th>Asset</th><th>Case</th></tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={workOrdersWithBadge} for:item="w">
+                            <tr key={w.workOrderId}>
+                                <td>{w.workOrderNumber}</td>
+                                <td>{w.subject}</td>
+                                <td>{w.workType}</td>
+                                <td>{w.priority}</td>
+                                <td><lightning-badge label={w.status} class={w.statusVariant}></lightning-badge></td>
+                                <td>{w.assetName}</td>
+                                <td>{w.caseNumber}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <template if:false={data.workOrders.length}>
+                    <p class="empty-state">No work orders on file for this customer.</p>
+                </template>
+            </template>
+
+            <template if:true={isAppointmentsTab}>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Subject</th><th>Scheduled</th><th>Status</th><th>Technician</th><th>Territory</th><th>Work Order</th></tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={appointmentsWithBadge} for:item="a">
+                            <tr key={a.appointmentId}>
+                                <td>{a.subject}</td>
+                                <td>{a.schedStartTime}</td>
+                                <td><lightning-badge label={a.status} class={a.statusVariant}></lightning-badge></td>
+                                <td>{a.technicianDisplay}</td>
+                                <td>{a.territory}</td>
+                                <td>{a.workOrderNumber}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <template if:false={data.appointments.length}>
+                    <p class="empty-state">No service appointments on file for this customer.</p>
+                </template>
+            </template>
+        </template>
+    </div>
+</template>
